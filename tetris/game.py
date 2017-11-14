@@ -4,6 +4,7 @@ from collections import defaultdict
 from .screen import Screen
 from .content import ContentLoader
 from .game_interface import GameInterface
+from .game_time import GameTime
 from .constants import RenderLayers
 from .objects.background import Background
 from .objects.pieces import get_random_piece_class
@@ -17,6 +18,7 @@ class HeadlessGame(GameInterface):
     def __init__(self, **kwargs):
         self.should_exit = False
         self.game_objects = set()
+        self.time = GameTime()
 
     def init_game(self):
         self.create_object(get_random_piece_class())
@@ -33,10 +35,24 @@ class HeadlessGame(GameInterface):
     def destroy_object(self, obj):
         self.game_objects.remove(obj)
 
+    def _run_step(self):
+        self.time.step_start()
+        self.update()
+        self.time.step_end()
+
+    def _can_run_next_step(self):
+        return True
+
+    def _extrastep(self):
+        pass
+
     def run(self):
         self.init_game()
+        self.time.start()
         while not self.should_exit:
-            self.update()
+            if self._can_run_next_step():
+                self._run_step()
+            self._extrastep()
 
 
 class Game(HeadlessGame):
@@ -56,9 +72,6 @@ class Game(HeadlessGame):
         self.create_object(Background)
 
     def update(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.should_exit = True
         super(Game, self).update()
         self.render()
 
@@ -81,3 +94,11 @@ class Game(HeadlessGame):
             for obj in self.render_layers[layer]:
                 obj.render(self.screen)
         self.screen.update()
+
+    def _can_run_next_step(self):
+        return self.time.get_time_since_last_start() > 1
+
+    def _extrastep(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.should_exit = True
