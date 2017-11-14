@@ -10,3 +10,6 @@ class Screen(object):
 
     def update(self):
         pygame.display.flip()
+
+    def blit(self, *args, **kwargs):
+        self.screen.blit(*args, **kwargs)

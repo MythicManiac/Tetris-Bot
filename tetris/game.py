@@ -2,6 +2,7 @@ import pygame
 
 from .screen import Screen
 from .content import ContentLoader
+from .game_object import Background
 
 BLOCK_SIZE = 48
 PLAY_AREA = (8, 16)
@@ -9,9 +10,9 @@ PLAY_AREA = (8, 16)
 
 class HeadlessGame(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.should_exit = False
-        self.game_objects = []
+        self.game_objects = set()
 
     def update(self):
         for obj in self.game_objects:
@@ -19,6 +20,7 @@ class HeadlessGame(object):
 
     def create_object(self, object_class, **kwargs):
         obj = object_class(**kwargs)
+        self.game_objects.add(obj)
         return obj
 
     def run(self):
@@ -28,11 +30,12 @@ class HeadlessGame(object):
 
 class Game(HeadlessGame):
 
-    def __init__(self):
-        super(Game, self).__init__()
+    def __init__(self, content_path, **kwargs):
+        super(Game, self).__init__(**kwargs)
         pygame.init()
         self.screen = Screen(PLAY_AREA[0] * BLOCK_SIZE, PLAY_AREA[1] * BLOCK_SIZE)
-        self.content_loader = ContentLoader("asd")
+        self.content_loader = ContentLoader(content_path)
+        self.create_object(Background)
 
     def update(self):
         for event in pygame.event.get():
