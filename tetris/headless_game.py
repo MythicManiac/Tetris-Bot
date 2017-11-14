@@ -5,7 +5,7 @@ from .objects.pieces import get_random_piece_class
 
 class HeadlessGame(GameInterface):
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.should_exit = False
         self.game_objects = set()
         self.time = GameTime()
@@ -17,7 +17,7 @@ class HeadlessGame(GameInterface):
         for obj in self.game_objects:
             obj.update()
 
-    def create_object(self, object_class, **kwargs):
+    def create_object(self, object_class, *args, **kwargs):
         obj = object_class(game_interface=self, **kwargs)
         self.game_objects.add(obj)
         return obj

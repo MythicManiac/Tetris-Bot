@@ -23,16 +23,28 @@ class Vector2(object):
     def __mul__(self, other):
         if isinstance(other, Vector2):
             return Vector2(self.x * other.x, self.y * other.y)
+        if isinstance(other, tuple):
+            return Vector2(self.x * other[0], self.y * other[1])
+        if isinstance(other, dict):
+            return Vector2(self.x * other["x"], self.y * other["y"])
         return Vector2(self.x * other, self.y * other)
 
     def __add__(self, other):
         if isinstance(other, Vector2):
             return Vector2(self.x + other.x, self.y + other.y)
+        if isinstance(other, tuple):
+            return Vector2(self.x + other[0], self.y + other[1])
+        if isinstance(other, dict):
+            return Vector2(self.x + other["x"], self.y + other["y"])
         return Vector2(self.x + other, self.y + other)
 
     def __sub__(self, other):
         if isinstance(other, Vector2):
             return Vector2(self.x - other, self.y - other)
+        if isinstance(other, tuple):
+            return Vector2(self.x - other[0], self.y - other[1])
+        if isinstance(other, dict):
+            return Vector2(self.x - other["x"], self.y - other["y"])
         return Vector2(self.x - other, self.y - other)
 
 
@@ -58,5 +70,10 @@ class GameObject(object):
     def render(self, screen):
         pass
 
-    def destroy(self):
-        self.game_interface.destroy(self)
+    @classmethod
+    def destroy(cls, obj):
+        obj.game_interface.destroy_object(obj)
+
+    @classmethod
+    def instantiate(cls, game_interface, object_class, *args, **kwargs):
+        game_interface.create_object(object_class, *args, **kwargs)

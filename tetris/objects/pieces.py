@@ -1,7 +1,7 @@
 import random
 
 from ..game_object import GameObject, Vector2
-from ..constants import RenderLayers, BLOCK_SIZE
+from ..constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
 
 
 class Orientations(object):
@@ -26,7 +26,10 @@ class BasePiece(GameObject):
         return RenderLayers.PIECES
 
     def update(self):
-        self.position += Vector2(0, 1)
+        self.position += (0, 1)
+        if self.position.y >= PLAY_AREA[1]:
+            GameObject.destroy(self)
+            GameObject.instantiate(self.game_interface, get_random_piece_class())
 
 
 class IPiece(BasePiece):

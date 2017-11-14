@@ -10,7 +10,7 @@ from .headless_game import HeadlessGame
 
 class Game(HeadlessGame):
 
-    def __init__(self, content_path, **kwargs):
+    def __init__(self, content_path, *args, **kwargs):
         super(Game, self).__init__(**kwargs)
         pygame.init()
         self.screen = Screen(
@@ -23,12 +23,13 @@ class Game(HeadlessGame):
     def init_game(self):
         super(Game, self).init_game()
         self.create_object(Background)
+        self.render()
 
     def update(self):
         super(Game, self).update()
         self.render()
 
-    def create_object(self, object_class, **kwargs):
+    def create_object(self, object_class, *args, **kwargs):
         obj = super(Game, self).create_object(object_class, **kwargs)
         obj.load_content(content_loader=self.content_loader)
         layer = obj.get_render_layer()
@@ -37,7 +38,7 @@ class Game(HeadlessGame):
         return obj
 
     def destroy_object(self, obj):
-        layer = obj.get_render_layer
+        layer = obj.get_render_layer()
         if layer is not None:
             self.render_layers[layer].remove(obj)
         super(Game, self).destroy_object(obj)
