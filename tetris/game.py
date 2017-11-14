@@ -3,18 +3,13 @@ from collections import defaultdict
 
 from .screen import Screen
 from .content import ContentLoader
-from .game_object import Background
-from .pieces import get_random_piece_class
+from .game_interface import GameInterface
 from .constants import RenderLayers
+from .objects.background import Background
+from .objects.pieces import get_random_piece_class
 
 BLOCK_SIZE = 48
 PLAY_AREA = (8, 16)
-
-
-class GameInterface(object):
-
-    def destroy_object(self, *args, **kwargs):
-        raise NotImplementedError()
 
 
 class HeadlessGame(GameInterface):

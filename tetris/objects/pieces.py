@@ -1,7 +1,7 @@
 import random
 
-from .game_object import GameObject
-from .constants import RenderLayers
+from ..game_object import GameObject
+from ..constants import RenderLayers
 
 
 class Orientations(object):
