@@ -50,7 +50,7 @@ class Game(HeadlessGame):
         self.screen.update()
 
     def _can_run_next_step(self):
-        return self.time.get_time_since_last_start() > 1
+        return self.time.get_time_since_last_step_start() >= 0.32
 
     def _extrastep(self):
         for event in pygame.event.get():
