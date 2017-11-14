@@ -14,13 +14,22 @@ class Orientations(object):
 class BasePiece(GameObject):
 
     def init(self):
-        self.position = Vector2(0, 0)
+        self.position = Vector2(2, 0)
+        self.set_orientation(Orientations.UP)
+
+    def set_orientation(self, new_orientation):
+        self.orientation = new_orientation
+        self.matrix = self.orientations[self.orientation]
 
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture(self.texture_path)
 
     def render(self, screen):
-        screen.blit(self.tile_texture, self.position * BLOCK_SIZE)
+        for y, row in enumerate(self.matrix):
+            for x, character in enumerate(row):
+                if character != "#":
+                    continue
+                screen.blit(self.tile_texture, (self.position + (x, y)) * BLOCK_SIZE)
 
     def get_render_layer(self):
         return RenderLayers.PIECES
