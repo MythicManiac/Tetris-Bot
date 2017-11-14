@@ -1,4 +1,4 @@
-from tetris.screen import SCREEN
+from tetris.game import Game
 
-while True:
-    SCREEN.update()
+game = Game()
+game.run()
