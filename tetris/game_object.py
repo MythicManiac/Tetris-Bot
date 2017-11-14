@@ -20,12 +20,31 @@ class Vector2(object):
     def __len__(self):
         return 2
 
+    def __mul__(self, other):
+        if isinstance(other, Vector2):
+            return Vector2(self.x * other.x, self.y * other.y)
+        return Vector2(self.x * other, self.y * other)
+
+    def __add__(self, other):
+        if isinstance(other, Vector2):
+            return Vector2(self.x + other.x, self.y + other.y)
+        return Vector2(self.x + other, self.y + other)
+
+    def __sub__(self, other):
+        if isinstance(other, Vector2):
+            return Vector2(self.x - other, self.y - other)
+        return Vector2(self.x - other, self.y - other)
+
 
 class GameObject(object):
 
     def __init__(self, game_interface, *args, **kwargs):
         assert isinstance(game_interface, GameInterface)
         self.game_interface = game_interface
+        self.init(*args, **kwargs)
+
+    def init(self):
+        pass
 
     def load_content(self, content_loader):
         pass

@@ -1,7 +1,7 @@
 import random
 
 from ..game_object import GameObject, Vector2
-from ..constants import RenderLayers
+from ..constants import RenderLayers, BLOCK_SIZE
 
 
 class Orientations(object):
@@ -13,18 +13,20 @@ class Orientations(object):
 
 class BasePiece(GameObject):
 
+    def init(self):
+        self.position = Vector2(0, 0)
+
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture(self.texture_path)
 
     def render(self, screen):
-        position = Vector2(x=0, y=0)
-        screen.blit(self.tile_texture, position)
+        screen.blit(self.tile_texture, self.position * BLOCK_SIZE)
 
     def get_render_layer(self):
         return RenderLayers.PIECES
 
     def update(self):
-        pass
+        self.position += Vector2(0, 1)
 
 
 class IPiece(BasePiece):

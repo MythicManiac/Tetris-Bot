@@ -5,12 +5,9 @@ from .screen import Screen
 from .content import ContentLoader
 from .game_interface import GameInterface
 from .game_time import GameTime
-from .constants import RenderLayers
+from .constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
 from .objects.background import Background
 from .objects.pieces import get_random_piece_class
-
-BLOCK_SIZE = 48
-PLAY_AREA = (8, 16)
 
 
 class HeadlessGame(GameInterface):
