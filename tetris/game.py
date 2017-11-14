@@ -18,6 +18,9 @@ class HeadlessGame(GameInterface):
         self.should_exit = False
         self.game_objects = set()
 
+    def init_game(self):
+        self.create_object(get_random_piece_class())
+
     def update(self):
         for obj in self.game_objects:
             obj.update()
@@ -31,6 +34,7 @@ class HeadlessGame(GameInterface):
         self.game_objects.remove(obj)
 
     def run(self):
+        self.init_game()
         while not self.should_exit:
             self.update()
 
@@ -40,10 +44,15 @@ class Game(HeadlessGame):
     def __init__(self, content_path, **kwargs):
         super(Game, self).__init__(**kwargs)
         pygame.init()
-        self.screen = Screen(PLAY_AREA[0] * BLOCK_SIZE, PLAY_AREA[1] * BLOCK_SIZE)
+        self.screen = Screen(
+            width=PLAY_AREA[0] * BLOCK_SIZE,
+            height=PLAY_AREA[1] * BLOCK_SIZE
+        )
         self.content_loader = ContentLoader(content_path)
         self.render_layers = defaultdict(set)
-        self.create_object(get_random_piece_class())
+
+    def init_game(self):
+        super(Game, self).init_game()
         self.create_object(Background)
 
     def update(self):

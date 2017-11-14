@@ -1,7 +1,7 @@
 import math
 
 from ..constants import RenderLayers
-from ..game_object import GameObject
+from ..game_object import GameObject, Vector2
 
 
 class Background(GameObject):
@@ -17,8 +17,8 @@ class Background(GameObject):
         tile_height = int(math.ceil(screen.height / self.tile_texture.get_height()))
         for x in range(tile_width):
             for y in range(tile_height):
-                draw_pos = (
-                    x * self.tile_texture.get_width(),
-                    y * self.tile_texture.get_height()
+                draw_pos = Vector2(
+                    x=x * self.tile_texture.get_width(),
+                    y=y * self.tile_texture.get_height()
                 )
                 screen.blit(self.tile_texture, draw_pos)

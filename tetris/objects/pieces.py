@@ -1,6 +1,6 @@
 import random
 
-from ..game_object import GameObject
+from ..game_object import GameObject, Vector2
 from ..constants import RenderLayers
 
 
@@ -17,8 +17,8 @@ class BasePiece(GameObject):
         self.tile_texture = content_loader.load_texture(self.texture_path)
 
     def render(self, screen):
-        pos = (0, 0)
-        screen.blit(self.tile_texture, pos)
+        position = Vector2(x=0, y=0)
+        screen.blit(self.tile_texture, position)
 
     def get_render_layer(self):
         return RenderLayers.PIECES
