@@ -1,3 +1,8 @@
+import random
+
+from .game_object import GameObject
+from .constants import RenderLayers
+
 
 class Orientations(object):
     UP = "up"
@@ -6,13 +11,24 @@ class Orientations(object):
     LEFT = "left"
 
 
-class BasePiece(object):
+class BasePiece(GameObject):
 
-    def __init__(self):
+    def load_content(self, content_loader):
+        self.tile_texture = content_loader.load_texture(self.texture_path)
+
+    def render(self, screen):
+        pos = (0, 0)
+        screen.blit(self.tile_texture, pos)
+
+    def get_render_layer(self):
+        return RenderLayers.PIECES
+
+    def update(self):
         pass
 
 
 class IPiece(BasePiece):
+    texture_path = "piece-turqoise.png"
     orientations = {
         Orientations.UP: [
             "    ",
@@ -42,6 +58,7 @@ class IPiece(BasePiece):
 
 
 class OPiece(BasePiece):
+    texture_path = "piece-yellow.png"
     orientations = {
         Orientations.UP: [
             "    ",
@@ -71,6 +88,7 @@ class OPiece(BasePiece):
 
 
 class TPiece(BasePiece):
+    texture_path = "piece-purple.png"
     orientations = {
         Orientations.UP: [
             " #  ",
@@ -100,6 +118,7 @@ class TPiece(BasePiece):
 
 
 class SPiece(BasePiece):
+    texture_path = "piece-green.png"
     orientations = {
         Orientations.UP: [
             " ## ",
@@ -129,6 +148,7 @@ class SPiece(BasePiece):
 
 
 class ZPiece(BasePiece):
+    texture_path = "piece-red.png"
     orientations = {
         Orientations.UP: [
             "##  ",
@@ -158,6 +178,7 @@ class ZPiece(BasePiece):
 
 
 class JPiece(BasePiece):
+    texture_path = "piece-blue.png"
     orientations = {
         Orientations.UP: [
             "#   ",
@@ -187,6 +208,7 @@ class JPiece(BasePiece):
 
 
 class LPiece(BasePiece):
+    texture_path = "piece-orange.png"
     orientations = {
         Orientations.UP: [
             "  # ",
@@ -213,3 +235,18 @@ class LPiece(BasePiece):
             "    ",
         ],
     }
+
+
+ALL_PIECES = [
+    IPiece,
+    OPiece,
+    TPiece,
+    SPiece,
+    ZPiece,
+    JPiece,
+    LPiece
+]
+
+
+def get_random_piece_class():
+    return random.choice(ALL_PIECES)

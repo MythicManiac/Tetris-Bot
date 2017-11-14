@@ -1,14 +1,23 @@
 import pygame
+from collections import defaultdict
 
 from .screen import Screen
 from .content import ContentLoader
 from .game_object import Background
+from .pieces import get_random_piece_class
+from .constants import RenderLayers
 
 BLOCK_SIZE = 48
 PLAY_AREA = (8, 16)
 
 
-class HeadlessGame(object):
+class GameInterface(object):
+
+    def destroy_object(self, *args, **kwargs):
+        raise NotImplementedError()
+
+
+class HeadlessGame(GameInterface):
 
     def __init__(self, **kwargs):
         self.should_exit = False
@@ -19,9 +28,12 @@ class HeadlessGame(object):
             obj.update()
 
     def create_object(self, object_class, **kwargs):
-        obj = object_class(**kwargs)
+        obj = object_class(game_interface=self, **kwargs)
         self.game_objects.add(obj)
         return obj
+
+    def destroy_object(self, obj):
+        self.game_objects.remove(obj)
 
     def run(self):
         while not self.should_exit:
@@ -35,6 +47,8 @@ class Game(HeadlessGame):
         pygame.init()
         self.screen = Screen(PLAY_AREA[0] * BLOCK_SIZE, PLAY_AREA[1] * BLOCK_SIZE)
         self.content_loader = ContentLoader(content_path)
+        self.render_layers = defaultdict(set)
+        self.create_object(get_random_piece_class())
         self.create_object(Background)
 
     def update(self):
@@ -47,9 +61,19 @@ class Game(HeadlessGame):
     def create_object(self, object_class, **kwargs):
         obj = super(Game, self).create_object(object_class, **kwargs)
         obj.load_content(content_loader=self.content_loader)
+        layer = obj.get_render_layer()
+        if layer is not None:
+            self.render_layers[layer].add(obj)
         return obj
 
+    def destroy_object(self, obj):
+        layer = obj.get_render_layer
+        if layer is not None:
+            self.render_layers[layer].remove(obj)
+        super(Game, self).destroy_object(obj)
+
     def render(self):
-        for obj in self.game_objects:
-            obj.render(self.screen)
+        for layer in RenderLayers.DRAW_ORDER:
+            for obj in self.render_layers[layer]:
+                obj.render(self.screen)
         self.screen.update()

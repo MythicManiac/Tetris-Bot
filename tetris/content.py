@@ -16,6 +16,6 @@ class ContentLoader(object):
         content = self.content_map.get(content_path)
         if content is not None:
             return content
-        content = pygame.image.load(os.path.join(self.content_root, content_path)).convert()
+        content = pygame.image.load(os.path.join(self.content_root, content_path)).convert_alpha()
         self.content_map[content_path] = content
         return content

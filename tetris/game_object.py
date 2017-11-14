@@ -1,10 +1,12 @@
 import math
 
+from .constants import RenderLayers
+
 
 class GameObject(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, game_interface, *args, **kwargs):
+        self.game_interface = game_interface
 
     def load_content(self, content_loader):
         pass
@@ -12,17 +14,23 @@ class GameObject(object):
     def update(self):
         pass
 
+    def get_render_layer(self):
+        pass
+
     def render(self, screen):
         pass
 
     def destroy(self):
-        pass
+        self.game_interface.destroy(self)
 
 
 class Background(GameObject):
 
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture("background.png")
+
+    def get_render_layer(self):
+        return RenderLayers.BACKGROUND
 
     def render(self, screen):
         tile_width = int(math.ceil(screen.width / self.tile_texture.get_width()))
