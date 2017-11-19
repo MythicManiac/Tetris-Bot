@@ -3,8 +3,6 @@ from collections import defaultdict
 
 from .screen import Screen
 from .content import ContentLoader
-from .constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
-from .objects.background import Background
 from .headless_game import HeadlessGame
 
 
@@ -13,16 +11,17 @@ class Game(HeadlessGame):
     def __init__(self, content_path, *args, **kwargs):
         super(Game, self).__init__(**kwargs)
         pygame.init()
-        self.screen = Screen(
-            width=PLAY_AREA[0] * BLOCK_SIZE,
-            height=PLAY_AREA[1] * BLOCK_SIZE
-        )
+        self.screen = Screen(**self.get_screen_params())
         self.content_loader = ContentLoader(content_path)
         self.render_layers = defaultdict(set)
 
-    def init_game(self):
-        super(Game, self).init_game()
-        self.create_object(Background)
+    def get_screen_params(self):
+        raise NotImplementedError()
+
+    def get_layer_draw_order(self):
+        raise NotImplementedError()
+
+    def post_init_game(self):
         self.render()
 
     def update(self):
@@ -44,7 +43,7 @@ class Game(HeadlessGame):
         super(Game, self).destroy_object(obj)
 
     def render(self):
-        for layer in RenderLayers.DRAW_ORDER:
+        for layer in self.get_layer_draw_order():
             for obj in self.render_layers[layer]:
                 obj.render(self.screen)
         self.screen.update()
@@ -53,6 +52,7 @@ class Game(HeadlessGame):
         return self.time.get_time_since_last_step_start() >= 0.32
 
     def _extrastep(self):
+        super(Game, self)._extrastep()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.should_exit = True

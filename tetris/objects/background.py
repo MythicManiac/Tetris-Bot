@@ -1,7 +1,7 @@
 import math
 
+from engine.game_object import GameObject, Vector2
 from ..constants import RenderLayers
-from ..game_object import GameObject, Vector2
 
 
 class Background(GameObject):

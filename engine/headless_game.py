@@ -1,6 +1,5 @@
 from .game_interface import GameInterface
 from .game_time import GameTime
-from .objects.pieces import get_random_piece_class
 
 
 class HeadlessGame(GameInterface):
@@ -11,7 +10,10 @@ class HeadlessGame(GameInterface):
         self.time = GameTime()
 
     def init_game(self):
-        self.create_object(get_random_piece_class())
+        pass
+
+    def post_init_game(self):
+        pass
 
     def update(self):
         for obj in self.game_objects:
@@ -36,10 +38,15 @@ class HeadlessGame(GameInterface):
     def _extrastep(self):
         pass
 
+    def on_exit(self):
+        pass
+
     def run(self):
         self.init_game()
+        self.post_init_game()
         self.time.start()
         while not self.should_exit:
             if self._can_run_next_step():
                 self._run_step()
             self._extrastep()
+        self.on_exit()

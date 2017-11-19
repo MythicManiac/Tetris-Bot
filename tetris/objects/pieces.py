@@ -1,6 +1,6 @@
 import random
 
-from ..game_object import GameObject, Vector2
+from engine.game_object import GameObject, Vector2
 from ..constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
 
 
