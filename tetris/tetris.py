@@ -5,7 +5,7 @@ from .objects.background import Background
 from .objects.pieces import get_random_piece_class
 
 
-class Tetris(object):
+class TetrisMixin(object):
     def get_screen_params(self):
         return {
             "width": PLAY_AREA[0] * BLOCK_SIZE,
@@ -16,12 +16,12 @@ class Tetris(object):
         return RenderLayers.DRAW_ORDER
 
     def init_game(self):
-        super(Tetris, self).init_game()
+        super(TetrisMixin, self).init_game()
         self.create_object(get_random_piece_class())
         self.create_object(Background)
 
     def _extrastep(self):
-        super(Tetris, self)._extrastep()
+        super(TetrisMixin, self)._extrastep()
         if self.time.get_time_since_start() > 10:
             self.should_exit = True
 
@@ -29,9 +29,9 @@ class Tetris(object):
         print(self.time.get_average_steps_per_second())
 
 
-class TetrisHeadlessGame(Tetris, HeadlessGame):
+class TetrisHeadlessGame(TetrisMixin, HeadlessGame):
     pass
 
 
-class TetrisGame(Tetris, Game):
+class TetrisGame(TetrisMixin, Game):
     pass

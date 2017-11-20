@@ -21,35 +21,30 @@ class Game(HeadlessGame):
     def get_layer_draw_order(self):
         raise NotImplementedError()
 
-    def post_init_game(self):
-        self.render()
+    def get_step_rate(self):
+        return 0.32
 
-    def update(self):
-        super(Game, self).update()
-        self.render()
-
-    def create_object(self, object_class, *args, **kwargs):
-        obj = super(Game, self).create_object(object_class, **kwargs)
+    def _handle_created_object(self, obj):
+        super(Game, self)._handle_created_object(obj)
         obj.load_content(content_loader=self.content_loader)
         layer = obj.get_render_layer()
         if layer is not None:
             self.render_layers[layer].add(obj)
-        return obj
 
-    def destroy_object(self, obj):
+    def _handle_destroyed_object(self, obj):
+        super(Game, self)._handle_destroyed_object(obj)
         layer = obj.get_render_layer()
         if layer is not None:
             self.render_layers[layer].remove(obj)
-        super(Game, self).destroy_object(obj)
 
-    def render(self):
+    def _render(self):
         for layer in self.get_layer_draw_order():
             for obj in self.render_layers[layer]:
                 obj.render(self.screen)
         self.screen.update()
 
     def _can_run_next_step(self):
-        return self.time.get_time_since_last_step_start() >= 0.32
+        return self.time.get_time_since_last_step_start() >= self.get_step_rate()
 
     def _extrastep(self):
         super(Game, self)._extrastep()

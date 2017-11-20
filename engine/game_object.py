@@ -1,6 +1,3 @@
-from .game_interface import GameInterface
-
-
 class Vector2(object):
 
     def __init__(self, x, y):
@@ -47,15 +44,17 @@ class Vector2(object):
             return Vector2(self.x - other["x"], self.y - other["y"])
         return Vector2(self.x - other, self.y - other)
 
+    def clone(self):
+        return Vector2(self.x, self.y)
+
 
 class GameObject(object):
 
     def __init__(self, game_interface, *args, **kwargs):
-        assert isinstance(game_interface, GameInterface)
         self.game_interface = game_interface
         self.init(*args, **kwargs)
 
-    def init(self):
+    def init(self, **kwargs):
         pass
 
     def load_content(self, content_loader):
