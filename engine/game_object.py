@@ -48,6 +48,18 @@ class Vector2(object):
         yield self.x
         yield self.y
 
+    def __eq__(self, other):
+        if isinstance(other, Vector2):
+            return self.x == other.x and self.y == other.y
+        if isinstance(other, tuple):
+            return self.x == other[0] and self.y == other[1]
+        if isinstance(other, dict):
+            return self.x == other["x"] and self.y == other["y"]
+        return super(Vector2, self).__eq__(other)
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def clone(self):
         return Vector2(self.x, self.y)
 
