@@ -1,4 +1,5 @@
 from .game_time import GameTime
+from .controller import Controller
 
 
 class HeadlessGame(object):
@@ -8,7 +9,11 @@ class HeadlessGame(object):
         self.game_objects = set()
         self.created_game_objects = []
         self.destroyed_game_objects = []
+        self.controller = self.get_controller_class()()
         self.time = GameTime()
+
+    def get_controller_class(self):
+        return Controller
 
     def init_game(self):
         pass
@@ -25,7 +30,9 @@ class HeadlessGame(object):
         self.destroyed_game_objects.append(obj)
 
     def _update(self):
+        self.controller.update()
         for obj in self.game_objects:
+            obj.update_input(self.controller)
             obj.update()
 
     def _handle_created_object(self, obj):

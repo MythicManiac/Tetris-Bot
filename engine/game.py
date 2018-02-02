@@ -1,3 +1,4 @@
+# TODO: Delete this top level import, or make sure it's not imported for headless
 import pygame
 from collections import defaultdict
 

@@ -60,6 +60,9 @@ class GameObject(object):
     def load_content(self, content_loader):
         pass
 
+    def update_input(self, controller):
+        pass
+
     def update(self):
         pass
 
