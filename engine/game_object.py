@@ -75,4 +75,4 @@ class GameObject(object):
 
     @classmethod
     def instantiate(cls, game_interface, object_class, *args, **kwargs):
-        game_interface.create_object(object_class, *args, **kwargs)
+        return game_interface.create_object(object_class, *args, **kwargs)
