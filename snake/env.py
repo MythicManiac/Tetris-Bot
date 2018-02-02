@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import gym
 import gym.envs
+from six import StringIO
 
 from engine.game_object import Vector2
 from .snake import SnakeHeadlessGame
