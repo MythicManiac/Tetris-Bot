@@ -1,5 +1,6 @@
 # TODO: Delete this top level import, or make sure it's not imported for headless
 import pygame
+from queue import Queue
 
 from engine.controller import Controller
 from engine.game_object import Vector2
@@ -22,16 +23,24 @@ class SnakeController(Controller):
 
 class SnakeHumanController(SnakeController):
 
+    def __init__(self):
+        super(SnakeHumanController, self).__init__()
+        self.input_queue = Queue(maxsize=3)
+
+    def update(self):
+        if not self.input_queue.empty():
+            self.direction = self.input_queue.get()
+
     def on_event(self, event_type, event_data):
-        if event_type == "keyboard_keydown":
+        if event_type == "keyboard_keydown" and not self.input_queue.full():
             if event_data == pygame.K_UP:
-                self.direction = Vector2(x=0, y=-1)
+                self.input_queue.put(Vector2(x=0, y=-1))
             elif event_data == pygame.K_DOWN:
-                self.direction = Vector2(x=0, y=1)
+                self.input_queue.put(Vector2(x=0, y=1))
             elif event_data == pygame.K_LEFT:
-                self.direction = Vector2(x=-1, y=0)
+                self.input_queue.put(Vector2(x=-1, y=0))
             elif event_data == pygame.K_RIGHT:
-                self.direction = Vector2(x=1, y=0)
+                self.input_queue.put(Vector2(x=1, y=0))
 
 
 class SnakeAIController(SnakeController):
