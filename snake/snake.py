@@ -16,15 +16,13 @@ class SnakeMixin(object):
     def get_layer_draw_order(self):
         return RenderLayers.DRAW_ORDER
 
+    def get_step_rate(self):
+        return 0.08
+
     def init_game(self):
         super(SnakeMixin, self).init_game()
         self.create_object(Level)
         self.create_object(Background)
-
-    def _extrastep(self):
-        super(SnakeMixin, self)._extrastep()
-        if self.time.get_time_since_start() > 10:
-            self.should_exit = True
 
     def on_exit(self):
         print(self.time.get_average_steps_per_second())

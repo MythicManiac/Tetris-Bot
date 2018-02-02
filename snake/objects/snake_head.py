@@ -65,21 +65,33 @@ class SnakeHead(GameObject):
         screen.blit(self.tile_texture, draw_pos)
 
     def update_input(self, controller):
+        new_direction = controller.get_direction()
+        if new_direction == Vector2(-self.direction.x, -self.direction.y):
+            return
         self.direction = controller.get_direction()
 
     def on_cherry_eaten(self):
         self.level.cherry.on_being_eaten()
         self.length += 1
-        # TODO: Reward AI?
 
     def on_collision(self):
-        # TODO: Die
-        pass
+        self.game_interface.should_exit = True
+
+    def update_position(self):
+        self.position += self.direction
+        if self.position.x >= PLAY_AREA[0]:
+            self.position.x -= PLAY_AREA[0]
+        if self.position.y >= PLAY_AREA[1]:
+            self.position.y -= PLAY_AREA[1]
+        if self.position.x < 0:
+            self.position.x += PLAY_AREA[0]
+        if self.position.y < 0:
+            self.position.y += PLAY_AREA[1]
 
     def update(self):
         self.level.unoccupy_space(self.position)
         old_pos = self.position.clone()
-        self.position += self.direction
+        self.update_position()
 
         if self.position not in self.level.free_space:
             self.on_collision()
@@ -96,11 +108,6 @@ class SnakeHead(GameObject):
             position=old_pos,
             head=self
         )
-
-        if self.position.x >= PLAY_AREA[0]:
-            self.position.x = 0
-        if self.position.y >= PLAY_AREA[1]:
-            self.position.y = 0
 
 
 class SnakePiece(GameObject):
