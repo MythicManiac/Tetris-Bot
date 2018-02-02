@@ -5,19 +5,26 @@ from ..constants import RenderLayers, PLAY_AREA
 class Level(GameObject):
 
     def init(self):
+        self.free_space = set()
+        for x in range(PLAY_AREA[0]):
+            for y in range(PLAY_AREA[1]):
+                self.free_space.add(Vector2(x, y))
         self.head = self.create_snake_head()
         self.cherry = self.create_cherry()
-        self.piece_positions = set()
 
     def on_cherry_eaten(self):
         self.cherry = self.create_cherry()
+
+    def cherry_position_lottery(self):
+        import random
+        return random.choice(list(self.free_space))
 
     def create_cherry(self):
         return GameObject.instantiate(
             self.game_interface,
             Cherry,
             level=self,
-            position=Vector2(5, 5)
+            position=self.cherry_position_lottery()
         )
 
     def create_snake_head(self):
@@ -27,11 +34,13 @@ class Level(GameObject):
             level=self
         )
 
-    def add_piece_position(self, position):
-        self.piece_positions.add(position)
+    def occupy_space(self, position):
+        if position in self.free_space:
+            self.free_space.remove(position)
 
-    def remove_piece_position(self, position):
-        self.piece_positions.remove(position)
+    def unoccupy_space(self, position):
+        if position not in self.free_space:
+            self.free_space.add(position)
 
 
 class SnakeHead(GameObject):
@@ -63,9 +72,19 @@ class SnakeHead(GameObject):
         self.length += 1
         # TODO: Reward AI?
 
+    def on_collision(self):
+        # TODO: Die
+        pass
+
     def update(self):
+        self.level.unoccupy_space(self.position)
         old_pos = self.position.clone()
         self.position += self.direction
+
+        if self.position not in self.level.free_space:
+            self.on_collision()
+
+        self.level.occupy_space(self.position)
 
         if self.position == self.level.cherry.position:
             self.on_cherry_eaten()
@@ -91,7 +110,7 @@ class SnakePiece(GameObject):
         self.position = position
         self.head = head
         self.age = 0
-        self.level.add_piece_position(self.position)
+        self.level.occupy_space(self.position)
 
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture("piece-blue.png")
@@ -109,7 +128,7 @@ class SnakePiece(GameObject):
     def update(self):
         self.age += 1
         if self.head.length - self.age <= 0:
-            self.level.remove_piece_position(self.position)
+            self.level.unoccupy_space(self.position)
             GameObject.destroy(self)
 
 
