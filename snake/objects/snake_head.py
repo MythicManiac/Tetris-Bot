@@ -26,7 +26,7 @@ class SnakeHead(GameObject):
 
         # if something eaten:
         # remove eaten
-        GameObject.instantiate(self.game_interface, SnakePiece, position=old_pos)
+        GameObject.instantiate(self.game_interface, SnakePiece, position=old_pos, age=3)
 
         if self.position.x >= PLAY_AREA[0]:
             self.position.x = 0
@@ -36,8 +36,9 @@ class SnakeHead(GameObject):
 
 class SnakePiece(GameObject):
 
-    def init(self, position):
+    def init(self, position, age):
         self.position = position
+        self.age = age
 
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture("piece-blue.png")
@@ -51,3 +52,8 @@ class SnakePiece(GameObject):
             self.tile_texture.get_height()
         )
         screen.blit(self.tile_texture, draw_pos)
+
+    def update(self):
+        self.age -= 1
+        if self.age <= 0:
+            GameObject.destroy(self)
