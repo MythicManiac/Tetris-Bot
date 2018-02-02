@@ -3,6 +3,7 @@ from engine.game import Game, HeadlessGame
 from .constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
 from .objects.background import Background
 from .objects.snake_head import SnakeHead
+from .controller import SnakeHumanController, SnakeAIController
 
 
 class SnakeMixin(object):
@@ -30,8 +31,10 @@ class SnakeMixin(object):
 
 
 class SnakeHeadlessGame(SnakeMixin, HeadlessGame):
-    pass
+    def get_controller_class(self):
+        return SnakeAIController
 
 
 class SnakeGame(SnakeMixin, Game):
-    pass
+    def get_controller_class(self):
+        return SnakeHumanController

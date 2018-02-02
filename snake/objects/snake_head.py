@@ -6,6 +6,7 @@ class SnakeHead(GameObject):
 
     def init(self):
         self.position = Vector2(0, 0)
+        self.direction = Vector2(1, 0)
 
     def load_content(self, content_loader):
         self.tile_texture = content_loader.load_texture("piece-blue.png")
@@ -20,9 +21,12 @@ class SnakeHead(GameObject):
         )
         screen.blit(self.tile_texture, draw_pos)
 
+    def update_input(self, controller):
+        self.direction = controller.get_direction()
+
     def update(self):
         old_pos = self.position.clone()
-        self.position.x += 1
+        self.position += self.direction
 
         # if something eaten:
         # remove eaten
