@@ -24,7 +24,7 @@ class Vector2(object):
             return Vector2(self.x * other[0], self.y * other[1])
         if isinstance(other, dict):
             return Vector2(self.x * other["x"], self.y * other["y"])
-        return Vector2(self.x * other, self.y * other)
+        return Vector2(self.x * other.x, self.y * other.y)
 
     def __add__(self, other):
         if isinstance(other, Vector2):
@@ -33,7 +33,7 @@ class Vector2(object):
             return Vector2(self.x + other[0], self.y + other[1])
         if isinstance(other, dict):
             return Vector2(self.x + other["x"], self.y + other["y"])
-        return Vector2(self.x + other, self.y + other)
+        return Vector2(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
         if isinstance(other, Vector2):
@@ -42,7 +42,11 @@ class Vector2(object):
             return Vector2(self.x - other[0], self.y - other[1])
         if isinstance(other, dict):
             return Vector2(self.x - other["x"], self.y - other["y"])
-        return Vector2(self.x - other, self.y - other)
+        return Vector2(self.x - other.x, self.y - other.y)
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
 
     def clone(self):
         return Vector2(self.x, self.y)
