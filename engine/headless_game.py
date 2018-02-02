@@ -21,6 +21,9 @@ class HeadlessGame(object):
     def on_exit(self):
         pass
 
+    def call_controller_event(self, event_type, event_data):
+        self.controller.on_event(event_type, event_data)
+
     def create_object(self, object_class, *args, **kwargs):
         obj = object_class(game_interface=self, **kwargs)
         self.created_game_objects.append(obj)

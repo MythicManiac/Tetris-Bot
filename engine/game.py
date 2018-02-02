@@ -52,3 +52,5 @@ class Game(HeadlessGame):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.should_exit = True
+            if event.type == pygame.KEYDOWN:
+                self.call_controller_event("keyboard_keydown", event.key)
