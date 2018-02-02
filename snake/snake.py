@@ -2,7 +2,7 @@ from engine.game import Game, HeadlessGame
 
 from .constants import RenderLayers, BLOCK_SIZE, PLAY_AREA
 from .objects.background import Background
-from .objects.snake_head import SnakeHead
+from .objects.snake_head import Level
 from .controller import SnakeHumanController, SnakeAIController
 
 
@@ -18,7 +18,7 @@ class SnakeMixin(object):
 
     def init_game(self):
         super(SnakeMixin, self).init_game()
-        self.create_object(SnakeHead)
+        self.create_object(Level)
         self.create_object(Background)
 
     def _extrastep(self):
