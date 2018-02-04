@@ -7,7 +7,7 @@ from six import StringIO
 
 from engine.game_object import Vector2
 from .snake import SnakeHeadlessGame
-from .objects.snake_head import SnakeHead, SnakePiece
+from .objects.snake_head import SnakeHead, SnakePiece, Cherry
 from .constants import PLAY_AREA
 
 
@@ -47,6 +47,13 @@ class SnakeEnvGame(SnakeHeadlessGame):
             if isinstance(obj, SnakeHead):
                 return obj
         raise KeyError("Snake head not found")
+
+    @property
+    def cherry(self):
+        for obj in self.game_objects:
+            if isinstance(obj, Cherry):
+                return obj
+        raise KeyError("Cherry not found")
 
     def reset(self):
         self._init_game()
@@ -91,9 +98,8 @@ class SnakeEnvGame(SnakeHeadlessGame):
         x %= self.width
         y %= self.height
         features[2][y][x] = 1
-        # TODO: The nom noms!
-        # x, y = self.cherry.location
-        # features[3][y][x] = 1
+        x, y = self.cherry.position
+        features[3][y][x] = 1
 
         return features
 
