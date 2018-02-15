@@ -1,4 +1,5 @@
 import sys
+import os
 
 import numpy as np
 import gym
@@ -6,7 +7,7 @@ import gym.envs
 from six import StringIO
 
 from engine.game_object import Vector2
-from .snake import SnakeHeadlessGame
+from .snake import SnakeHeadlessGame, SnakeGame
 from .objects.snake_head import SnakeHead, SnakePiece, Cherry
 from .constants import PLAY_AREA
 
@@ -17,7 +18,7 @@ ENV_NAMES = {
 }
 
 
-class SnakeEnvGame(SnakeHeadlessGame):
+class SnakeGameState(object):
     """
     Features
     Snake piece ages
@@ -25,42 +26,50 @@ class SnakeEnvGame(SnakeHeadlessGame):
     Head next location 1-hot
     Cherry location 1-hot.
     """
-    def __init__(self, height, width):
+
+    def __init__(self, width, height, headless=True):
         if (height, width) != PLAY_AREA:
             raise ValueError("Only dimensions {} supported".format(PLAY_AREA))
-        self.height = height
-        self.width = width
         self.shape = (4, width, height)
-        super().__init__()
+        self.width = width
+        self.height = height
+
+        self.game_class = SnakeHeadlessGame if headless else SnakeGame
+        self.game_kwargs = {}
+        if not headless:
+            self.game_kwargs["content_path"] = os.path.abspath(
+                os.path.join("snake", "content")
+            )
 
     @property
     def pieces(self):
         result = set()
-        for obj in self.game_objects:
+        for obj in self.game.game_objects:
             if isinstance(obj, SnakePiece):
                 result.add(obj)
         return result
 
     @property
     def head(self):
-        for obj in self.game_objects:
+        for obj in self.game.game_objects:
             if isinstance(obj, SnakeHead):
                 return obj
         raise KeyError("Snake head not found")
 
     @property
     def cherry(self):
-        for obj in self.game_objects:
+        for obj in self.game.game_objects:
             if isinstance(obj, Cherry):
                 return obj
         raise KeyError("Cherry not found")
 
     def reset(self):
-        self._init_game()
+        self.game = self.game_class(**self.game_kwargs)
+        self.game._init_game()
 
     def step(self, direction):
-        self.controller.direction = direction
-        self._run_step()
+        self.game.controller.direction = direction
+        self.game._run_step()
         return 0
 
     def seed(self, seed=None):
@@ -108,13 +117,12 @@ class SnakeEnv(gym.Env):
     metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, height, width):
-        self.state = SnakeEnvGame(width, height)
+        self.state = SnakeGameState(width, height)
 
         self.reward_range = (-1, 1)
         self.action_space = gym.spaces.Discrete(4)
 
         max_age = height * width
-        num_features = 4  
         self.observation_space = gym.spaces.Box(
             low=0,
             high=max_age,
@@ -144,7 +152,7 @@ class SnakeEnv(gym.Env):
             direction.x = 1
         elif action == 1:
             direction.x = -1
-        elif action == 2 :
+        elif action == 2:
             direction.y = 1
         elif action == 3:
             direction.y = -1
