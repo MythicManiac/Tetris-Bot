@@ -70,6 +70,8 @@ class SnakeGameState(object):
     def step(self, direction):
         self.game.controller.direction = direction
         self.game._run_step()
+        if self.game.should_exit:
+            return -1
         return 0
 
     def seed(self, seed=None):
