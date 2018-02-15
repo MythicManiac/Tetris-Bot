@@ -91,7 +91,7 @@ class SnakeEnvGame(SnakeHeadlessGame):
         features = np.zeros(self.shape)
         for piece in self.pieces:
             x, y = piece.position
-            features[0][y][x] = piece.age
+            features[0][y][x] = piece.age + 1
         x, y = self.head.position
         features[1][y][x] = 1
         x, y = self.head.position + self.head.direction
