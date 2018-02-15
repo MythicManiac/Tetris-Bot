@@ -88,8 +88,12 @@ class GameObject(object):
     def render(self, screen):
         pass
 
+    def on_destroy(self):
+        pass
+
     @classmethod
     def destroy(cls, obj):
+        obj.on_destroy()
         obj.game_interface.destroy_object(obj)
 
     @classmethod

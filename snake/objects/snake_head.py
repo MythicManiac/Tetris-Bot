@@ -109,6 +109,9 @@ class SnakeHead(GameObject):
             head=self
         )
 
+    def on_destroy(self):
+        self.level.unoccupy_space(self.position)
+
 
 class SnakePiece(GameObject):
 
@@ -135,8 +138,10 @@ class SnakePiece(GameObject):
     def update(self):
         self.age += 1
         if self.head.length - self.age <= 0:
-            self.level.unoccupy_space(self.position)
             GameObject.destroy(self)
+
+    def on_destroy(self):
+        self.level.unoccupy_space(self.position)
 
 
 class Cherry(GameObject):
