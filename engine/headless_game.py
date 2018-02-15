@@ -1,15 +1,17 @@
 from .game_time import GameTime
 from .controller import Controller
+from .random import Random
 
 
 class HeadlessGame(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, random_seed=1234, *args, **kwargs):
         self.should_exit = False
         self.game_objects = set()
         self.created_game_objects = []
         self.destroyed_game_objects = []
         self.controller = self.get_controller_class()()
+        self.random = Random(random_seed=random_seed)
         self.time = GameTime()
 
     def get_controller_class(self):

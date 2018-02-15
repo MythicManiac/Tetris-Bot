@@ -16,8 +16,8 @@ class Level(GameObject):
         self.cherry = self.create_cherry()
 
     def cherry_position_lottery(self):
-        import random
-        return random.choice(list(self.free_space))
+        space = list(self.free_space)
+        return self.random.choice(space)
 
     def create_cherry(self):
         return GameObject.instantiate(

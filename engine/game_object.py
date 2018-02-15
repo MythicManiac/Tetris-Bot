@@ -91,6 +91,10 @@ class GameObject(object):
     def on_destroy(self):
         pass
 
+    @property
+    def random(self):
+        return self.game_interface.random
+
     @classmethod
     def destroy(cls, obj):
         obj.on_destroy()

@@ -40,6 +40,7 @@ class SnakeGameState(object):
             self.game_kwargs["content_path"] = os.path.abspath(
                 os.path.join("snake", "content")
             )
+        self.seed()
 
     @property
     def pieces(self):
@@ -75,7 +76,9 @@ class SnakeGameState(object):
         return 0
 
     def seed(self, seed=None):
-        return 1234
+        self.random_seed = seed if seed else 1234
+        self.game_kwargs["random_seed"] = self.random_seed
+        return self.random_seed
 
     def render_ansi(self, outfile):
         features = self.encode()
