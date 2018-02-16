@@ -10,52 +10,69 @@ def _bias(shape, name):
     return tf.Variable(tf.zeros(shape), name=name)
 
 
-class SnakeNetwork:
+def _weight_variable(shape):
+    initial = tf.truncated_normal(shape, stddev=0.1)
+    return tf.Variable(initial)
+
+
+def _bias_variable(shape):
+    initial = tf.constant(0.1, shape=shape)
+    return tf.Variable(initial)
+
+
+def _conv2d(x, W):
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+
+def _max_pool_2x2(x):
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+
+class SnakeNetwork(object):
 
     def __init__(self, feature_count, level_width, level_height, action_count):
+        assert level_width % 2 == 0
+        assert level_height % 2 == 0
         self.feature_count = feature_count
         self.level_width = level_width
         self.level_height = level_height
         self.action_count = action_count
         self.build()
 
-    def real_build(self):
-        pass
-        # body_map, head_map, future_head_map, cherry_map = tf.split(
-        #     axis=0,
-        #     num_or_size_splits=4,
-        #     value=[]
-        # )
-
     def build(self):
-        # Network input
-        networkstate = tf.placeholder(tf.float32, [None, self.feature_count], name="input")
-        networkaction = tf.placeholder(tf.int32, [None], name="actioninput")
-        networkreward = tf.placeholder(tf.float32, [None], name="groundtruth_reward")
-        action_onehot = tf.one_hot(networkaction, self.action_count, name="actiononehot")
+        network_input = tf.placeholder(
+            tf.float32,
+            shape=[None, self.level_width, self.level_height, self.feature_count]
+        )
 
-        # The variable in our network:
-        w1 = _weight([self.feature_count, 16], name="W1")
-        w2 = _weight([16, 32], name="W2")
-        w3 = _weight([32, 8], name="W3")
-        w4 = _weight([8, self.action_count], name="W4")
-        b1 = _bias([16], name="B1")
-        b2 = _bias([32], name="B2")
-        b3 = _bias([8], name="B3")
-        b4 = _bias(self.action_count, name="B4")
+        # First layer
+        W_conv1 = _weight_variable([5, 5, self.feature_count, 32])
+        b_conv1 = _bias_variable([32])
 
-        # The network layout
-        layer1 = tf.nn.relu(tf.add(tf.matmul(networkstate, w1), b1), name="Result1")
-        layer2 = tf.nn.relu(tf.add(tf.matmul(layer1, w2), b2), name="Result2")
-        layer3 = tf.nn.relu(tf.add(tf.matmul(layer2, w3), b3), name="Result3")
-        predictedreward = tf.add(tf.matmul(layer3, w4), b4, name="predictedReward")
+        # First pool
+        h_conv1 = tf.nn.relu(_conv2d(network_input, W_conv1) + b_conv1)
+        h_pool1 = _max_pool_2x2(h_conv1)  # This halves the size, so output is [width / 2, height / 2]
 
-        # Learning
-        self.qreward = tf.reduce_sum(tf.multiply(predictedreward, action_onehot), reduction_indices=1)
-        self.loss = tf.reduce_mean(tf.square(networkreward - self.qreward))
-        tf.summary.scalar('loss', self.loss)
-        self.optimizer = tf.train.RMSPropOptimizer(0.0001).minimize(self.loss)
-        self.merged_summary = tf.summary.merge_all()
+        # Densely connected layer
+        neurons = 128
+        flat_neurons = int(self.level_width / 2) * int(self.level_height / 2) * 32
+        W_fc1 = _weight_variable([flat_neurons, neurons])
+        b_fc1 = _bias_variable([neurons])
+
+        h_pool1_flat = tf.reshape(h_pool1, [-1, flat_neurons])
+        h_fc1 = tf.nn.relu(tf.matmul(h_pool1_flat, W_fc1) + b_fc1)
+
+        # Dropout layer
+        keep_prob = tf.placeholder(tf.float32)
+        h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+        # Output layer
+        output_count = 4
+        W_fc2 = _weight_variable([128, output_count])
+        b_fc2 = _bias_variable([output_count])
+
+        y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
 
     def store_transition(self, old_state, action, reward, new_state):
         pass
