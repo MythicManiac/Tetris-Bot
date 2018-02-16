@@ -70,7 +70,10 @@ class SnakeGameState(object):
 
     def step(self, direction):
         self.game.controller.direction = direction
+        last_lenght = self.head.length
         self.game._run_step()
+        if self.head.length > last_lenght:
+            return 1
         if self.game.should_exit:
             return -1
         return 0
