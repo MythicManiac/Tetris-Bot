@@ -27,7 +27,7 @@ class SnakeGameState(object):
     Cherry location 1-hot.
     """
 
-    def __init__(self, width, height, headless=True):
+    def __init__(self, width, height, headless=False):
         if (height, width) != PLAY_AREA:
             raise ValueError("Only dimensions {} supported".format(PLAY_AREA))
         self.shape = (4, width, height)
