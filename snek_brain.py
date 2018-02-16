@@ -1,4 +1,4 @@
-# import numpy as np
+import numpy as np
 import tensorflow as tf
 
 
@@ -38,9 +38,12 @@ class SnakeNetwork(object):
         self.level_height = level_height
         self.action_count = action_count
         self.build()
+        self.session = tf.Session()
+        self.session.run(tf.global_variables_initializer())
+        tf.summary.FileWriter("logs/", self.session.graph)
 
     def build(self):
-        network_input = tf.placeholder(
+        self.network_input = tf.placeholder(
             tf.float32,
             shape=[None, self.level_width, self.level_height, self.feature_count]
         )
@@ -50,7 +53,7 @@ class SnakeNetwork(object):
         b_conv1 = _bias_variable([32])
 
         # First pool
-        h_conv1 = tf.nn.relu(_conv2d(network_input, W_conv1) + b_conv1)
+        h_conv1 = tf.nn.relu(_conv2d(self.network_input, W_conv1) + b_conv1)
         h_pool1 = _max_pool_2x2(h_conv1)  # This halves the size, so output is [width / 2, height / 2]
 
         # Densely connected layer
@@ -63,22 +66,31 @@ class SnakeNetwork(object):
         h_fc1 = tf.nn.relu(tf.matmul(h_pool1_flat, W_fc1) + b_fc1)
 
         # Dropout layer
-        keep_prob = tf.placeholder(tf.float32)
-        h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+        self.keep_prob = tf.placeholder(tf.float32)
+        h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
 
         # Output layer
         output_count = 4
         W_fc2 = _weight_variable([128, output_count])
         b_fc2 = _bias_variable([output_count])
 
-        y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
-
+        self.network_output = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
     def store_transition(self, old_state, action, reward, new_state):
         pass
 
     def choose_action(self, observation):
-        pass
+        observation = observation[np.newaxis, :]
+
+        network_output = self.session.run(
+            self.network_output,
+            feed_dict={
+                self.network_input: observation,
+                self.keep_prob: 1.0,
+            },
+        )
+        action = np.argmax(network_output)
+        return action
 
     def learn(self):
         pass

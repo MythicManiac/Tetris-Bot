@@ -30,13 +30,13 @@ class SnakeGameState(object):
     def __init__(self, width, height, headless=False):
         if (height, width) != PLAY_AREA:
             raise ValueError("Only dimensions {} supported".format(PLAY_AREA))
-        self.shape = (4, width, height)
+        self.shape = (width, height, 4)
         self.width = width
         self.height = height
-
-        self.game_class = SnakeHeadlessGame if headless else SnakeGame
+        self.headless = headless
+        self.game_class = SnakeHeadlessGame if self.headless else SnakeGame
         self.game_kwargs = {}
-        if not headless:
+        if not self.headless:
             self.game_kwargs["content_path"] = os.path.abspath(
                 os.path.join("snake", "content")
             )
@@ -72,6 +72,9 @@ class SnakeGameState(object):
         self.game.controller.direction = direction
         last_lenght = self.head.length
         self.game._run_step()
+        if not self.headless:
+            self.game._extrastep()
+
         if self.head.length > last_lenght:
             return 1
         if self.game.should_exit:
@@ -91,11 +94,11 @@ class SnakeGameState(object):
         for y in range(self.height):
             outfile.write("# ")
             for x in range(self.width):
-                if features[0][y][x]:
+                if features[x][y][0]:
                     outfile.write("O ")
-                elif features[1][y][x]:
+                elif features[x][y][1]:
                     outfile.write("@ ")
-                elif features[3][y][x]:
+                elif features[x][y][3]:
                     outfile.write("% ")
                 else:
                     outfile.write(". ")
@@ -108,15 +111,15 @@ class SnakeGameState(object):
         features = np.zeros(self.shape)
         for piece in self.pieces:
             x, y = piece.position
-            features[0][y][x] = piece.age + 1
+            features[x][y][0] = piece.age + 1
         x, y = self.head.position
-        features[1][y][x] = 1
+        features[x][y][1] = 1
         x, y = self.head.position + self.head.direction
         x %= self.width
         y %= self.height
-        features[2][y][x] = 1
+        features[x][y][2] = 1
         x, y = self.cherry.position
-        features[3][y][x] = 1
+        features[x][y][3] = 1
 
         return features
 
