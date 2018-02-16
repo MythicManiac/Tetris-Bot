@@ -1,20 +1,16 @@
 import gym
 
 from snake.env import register
-from RL_brain import DeepQNetwork
+from RL_brain import SnakeNetwork
 
 
 def main():
     env = gym.make("Snake-v0")
-    agent = DeepQNetwork(
-        n_actions=env.action_space.n,
-        n_features=env.observation_space.shape[0],
-        learning_rate=0.01,
-        reward_decay=0.9,
-        e_greedy=0.9,
-        replace_target_iter=200,
-        memory_size=2000,
-        output_graph=True
+    agent = SnakeNetwork(
+        feature_count=env.observation_space.shape[0],
+        level_width=env.observation_space.shape[1],
+        level_height=env.observation_space.shape[2],
+        action_count=env.action_space.n,
     )
 
     total_steps = 0
