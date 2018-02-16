@@ -2,6 +2,14 @@
 import tensorflow as tf
 
 
+def _weight(shape, name):
+    return tf.Variable(tf.random_normal(shape, stddev=0.35), name=name)
+
+
+def _bias(shape, name):
+    return tf.Variable(tf.zeros(shape), name=name)
+
+
 class SnakeNetwork:
 
     def __init__(self, feature_count, level_width, level_height, action_count):
@@ -11,6 +19,14 @@ class SnakeNetwork:
         self.action_count = action_count
         self.build()
 
+    def real_build(self):
+        pass
+        # body_map, head_map, future_head_map, cherry_map = tf.split(
+        #     axis=0,
+        #     num_or_size_splits=4,
+        #     value=[]
+        # )
+
     def build(self):
         # Network input
         networkstate = tf.placeholder(tf.float32, [None, self.feature_count], name="input")
@@ -19,14 +35,14 @@ class SnakeNetwork:
         action_onehot = tf.one_hot(networkaction, self.action_count, name="actiononehot")
 
         # The variable in our network:
-        w1 = tf.Variable(tf.random_normal([self.feature_count, 16], stddev=0.35), name="W1")
-        w2 = tf.Variable(tf.random_normal([16, 32], stddev=0.35), name="W2")
-        w3 = tf.Variable(tf.random_normal([32, 8], stddev=0.35), name="W3")
-        w4 = tf.Variable(tf.random_normal([8, self.action_count], stddev=0.35), name="W4")
-        b1 = tf.Variable(tf.zeros([16]), name="B1")
-        b2 = tf.Variable(tf.zeros([32]), name="B2")
-        b3 = tf.Variable(tf.zeros([8]), name="B3")
-        b4 = tf.Variable(tf.zeros(self.action_count), name="B4")
+        w1 = _weight([self.feature_count, 16], name="W1")
+        w2 = _weight([16, 32], name="W2")
+        w3 = _weight([32, 8], name="W3")
+        w4 = _weight([8, self.action_count], name="W4")
+        b1 = _bias([16], name="B1")
+        b2 = _bias([32], name="B2")
+        b3 = _bias([8], name="B3")
+        b4 = _bias(self.action_count, name="B4")
 
         # The network layout
         layer1 = tf.nn.relu(tf.add(tf.matmul(networkstate, w1), b1), name="Result1")
