@@ -30,13 +30,15 @@ def _max_pool_2x2(x):
 
 class SnakeNetwork(object):
 
-    def __init__(self, feature_count, level_width, level_height, action_count):
+    def __init__(self, feature_count, level_width, level_height, action_count,
+                 epsilon=0.1):
         assert level_width % 2 == 0
         assert level_height % 2 == 0
         self.feature_count = feature_count
         self.level_width = level_width
         self.level_height = level_height
         self.action_count = action_count
+        self.epsilon = epsilon
         self.build()
         self.session = tf.Session()
         self.session.run(tf.global_variables_initializer())
@@ -82,14 +84,17 @@ class SnakeNetwork(object):
     def choose_action(self, observation):
         observation = observation[np.newaxis, :]
 
-        network_output = self.session.run(
-            self.network_output,
-            feed_dict={
-                self.network_input: observation,
-                self.keep_prob: 1.0,
-            },
-        )
-        action = np.argmax(network_output)
+        if np.random.rand(1) < self.epsilon:
+            action = np.random.randint(0, self.action_count)
+        else:
+            network_output = self.session.run(
+                self.network_output,
+                feed_dict={
+                    self.network_input: observation,
+                    self.keep_prob: 1.0,
+                },
+            )
+            action = np.argmax(network_output)
         return action
 
     def learn(self):
