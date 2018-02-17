@@ -15,6 +15,7 @@ from .constants import PLAY_AREA
 ENV_NAMES = {
     "small": "SnakeSmall-v0",
     "normal": "Snake-v0",
+    "normal-headless": "SnakeHeadless-v0",
 }
 
 
@@ -127,8 +128,8 @@ class SnakeGameState(object):
 class SnakeEnv(gym.Env):
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, height, width):
-        self.state = SnakeGameState(width, height)
+    def __init__(self, height, width, headless=False):
+        self.state = SnakeGameState(width, height, headless)
 
         self.reward_range = (-1, 1)
         self.action_space = gym.spaces.Discrete(4)
@@ -186,6 +187,13 @@ def register():
         id=ENV_NAMES["normal"],
         entry_point="snake.env:SnakeEnv",
         kwargs={"width": 10, "height": 10},
+        max_episode_steps=None,
+        reward_threshold=25.0,
+    )
+    gym.envs.register(
+        id=ENV_NAMES["normal-headless"],
+        entry_point="snake.env:SnakeEnv",
+        kwargs={"width": 10, "height": 10, "headless": True},
         max_episode_steps=None,
         reward_threshold=25.0,
     )

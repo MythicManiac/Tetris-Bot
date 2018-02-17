@@ -31,14 +31,16 @@ def _max_pool_2x2(x):
 class SnakeNetwork(object):
 
     def __init__(self, feature_count, level_width, level_height, action_count,
-                 epsilon=0.1):
+                 checkpoint_path, epsilon=0.1, learning_rate=1e-4):
         assert level_width % 2 == 0
         assert level_height % 2 == 0
         self.feature_count = feature_count
         self.level_width = level_width
         self.level_height = level_height
         self.action_count = action_count
+        self.checkpoint_path = checkpoint_path
         self.epsilon = epsilon
+        self.learning_rate = learning_rate
         self.build()
         self.session = tf.Session()
         self.session.run(tf.global_variables_initializer())
@@ -47,7 +49,8 @@ class SnakeNetwork(object):
     def build(self):
         self.network_input = tf.placeholder(
             tf.float32,
-            shape=[None, self.level_width, self.level_height, self.feature_count]
+            shape=[None, self.level_width, self.level_height, self.feature_count],
+            name="GameState"
         )
 
         # First layer
@@ -68,7 +71,7 @@ class SnakeNetwork(object):
         h_fc1 = tf.nn.relu(tf.matmul(h_pool1_flat, W_fc1) + b_fc1)
 
         # Dropout layer
-        self.keep_prob = tf.placeholder(tf.float32)
+        self.keep_prob = tf.placeholder(tf.float32, name="KeepProbability")
         h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
 
         # Output layer
@@ -77,25 +80,71 @@ class SnakeNetwork(object):
         b_fc2 = _bias_variable([output_count])
 
         self.network_output = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+        self.action = tf.argmax(self.network_output, 1)
 
-    def store_transition(self, old_state, action, reward, new_state):
-        pass
+        # Loss & train
+        self.target = tf.placeholder(tf.float32, [None, output_count], name="Target")
+        error = tf.reduce_sum(tf.square(self.network_output - self.target))
+        L2_norm = tf.reduce_sum(tf.square(b_fc1)) + tf.reduce_sum(tf.square(b_fc2))
+        L2_norm += tf.reduce_sum(tf.square(W_fc1)) + tf.reduce_sum(tf.square(W_fc2))
+        self.loss = error + L2_norm * 1e-6
+
+        self.train = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+
+        correct_prediction = tf.equal(self.action, tf.argmax(self.target, 1))
+        self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+    def learn(self, old_state, action, reward, new_state, Q_base):
+        gamma = 0.99
+        old_state = old_state[np.newaxis, :]
+        new_state = new_state[np.newaxis, :]
+
+        Q = self.session.run(
+            self.network_output,
+            feed_dict={
+                self.network_input: new_state,
+                self.keep_prob: 1.0,
+            }
+        )
+        Q_target = Q_base
+        Q_target[0, action] = reward + gamma * np.max(Q)
+
+        # Train
+        self.session.run(
+            self.train,
+            feed_dict={
+                self.network_input: old_state,
+                self.keep_prob: 1.0,
+                self.target: Q_target
+            }
+        )
 
     def choose_action(self, observation):
         observation = observation[np.newaxis, :]
 
+        network_output, action = self.session.run(
+            [self.network_output, self.action],
+            feed_dict={
+                self.network_input: observation,
+                self.keep_prob: 1.0,
+            },
+        )
         if np.random.rand(1) < self.epsilon:
             action = np.random.randint(0, self.action_count)
-        else:
-            network_output = self.session.run(
-                self.network_output,
-                feed_dict={
-                    self.network_input: observation,
-                    self.keep_prob: 1.0,
-                },
-            )
-            action = np.argmax(network_output)
-        return action
 
-    def learn(self):
-        pass
+        return action, network_output
+
+    def save(self):
+        saver = tf.train.Saver()
+        save_path = saver.save(self.session, self.checkpoint_path)
+        print("Saved parameters to %s" % save_path)
+
+    def load(self):
+        saver = tf.train.Saver()
+        if tf.train.checkpoint_exists(self.checkpoint_path):
+            saver.restore(self.session, self.checkpoint_path)
+            print("Loaded model")
+            return True
+        else:
+            print("No checkpoints found, initializing new model")
+            return False
