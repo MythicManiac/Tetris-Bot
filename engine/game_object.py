@@ -82,6 +82,9 @@ class GameObject(object):
     def update(self):
         pass
 
+    def late_update(self):
+        pass
+
     def get_render_layer(self):
         pass
 

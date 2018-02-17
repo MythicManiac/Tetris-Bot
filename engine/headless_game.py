@@ -39,6 +39,8 @@ class HeadlessGame(object):
         for obj in self.game_objects:
             obj.update_input(self.controller)
             obj.update()
+        for obj in self.game_objects:
+            obj.late_update()
 
     def _handle_created_object(self, obj):
         self.game_objects.add(obj)

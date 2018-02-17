@@ -16,6 +16,8 @@ class Level(GameObject):
         self.cherry = self.create_cherry()
 
     def cherry_position_lottery(self):
+        if not self.free_space:
+            return Vector2(0, 0)
         space = list(self.free_space)
         return self.random.choice(space)
 
@@ -98,9 +100,6 @@ class SnakeHead(GameObject):
 
         self.level.occupy_space(self.position)
 
-        if self.position == self.level.cherry.position:
-            self.on_cherry_eaten()
-
         GameObject.instantiate(
             self.game_interface,
             SnakePiece,
@@ -108,6 +107,9 @@ class SnakeHead(GameObject):
             position=old_pos,
             head=self
         )
+
+        if self.position == self.level.cherry.position:
+            self.on_cherry_eaten()
 
     def on_destroy(self):
         self.level.unoccupy_space(self.position)
@@ -137,6 +139,8 @@ class SnakePiece(GameObject):
 
     def update(self):
         self.age += 1
+
+    def late_update(self):
         if self.head.length - self.age <= 0:
             GameObject.destroy(self)
 
