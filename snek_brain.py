@@ -79,7 +79,8 @@ class SnakeNetwork(object):
         W_fc2 = _weight_variable([128, output_count])
         b_fc2 = _bias_variable([output_count])
 
-        self.network_output = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+        # self.network_output = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+        self.network_output = tf.matmul(h_fc1, W_fc2) + b_fc2
         self.action = tf.argmax(self.network_output, 1)
 
         # Loss & train
@@ -103,7 +104,7 @@ class SnakeNetwork(object):
             self.network_output,
             feed_dict={
                 self.network_input: new_state,
-                self.keep_prob: 1.0,
+                self.keep_prob: 0.5,
             }
         )
         Q_target = Q_base
@@ -114,7 +115,7 @@ class SnakeNetwork(object):
             self.train,
             feed_dict={
                 self.network_input: old_state,
-                self.keep_prob: 1.0,
+                self.keep_prob: 0.5,
                 self.target: Q_target
             }
         )
@@ -126,7 +127,7 @@ class SnakeNetwork(object):
             [self.network_output, self.action],
             feed_dict={
                 self.network_input: observation,
-                self.keep_prob: 1.0,
+                self.keep_prob: 0.5,
             },
         )
         if np.random.rand(1) < self.epsilon:

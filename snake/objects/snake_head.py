@@ -82,13 +82,13 @@ class SnakeHead(GameObject):
     def update_position(self):
         self.position += self.direction
         if self.position.x >= PLAY_AREA[0]:
-            self.position.x -= PLAY_AREA[0]
+            self.game_interface.should_exit = True
         if self.position.y >= PLAY_AREA[1]:
-            self.position.y -= PLAY_AREA[1]
+            self.game_interface.should_exit = True
         if self.position.x < 0:
-            self.position.x += PLAY_AREA[0]
+            self.game_interface.should_exit = True
         if self.position.y < 0:
-            self.position.y += PLAY_AREA[1]
+            self.game_interface.should_exit = True
 
     def update(self):
         self.level.unoccupy_space(self.position)

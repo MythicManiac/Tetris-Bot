@@ -3,7 +3,7 @@ import sys
 import os
 
 from snake.env import register
-from snek_brain import SnakeNetwork
+from deep_snake_brain import SnakeNetwork
 
 
 class Unbuffer(object):
@@ -25,7 +25,7 @@ class Unbuffer(object):
 def main():
     env = gym.make("Snake-v0")
 
-    checkpoint_path = os.path.abspath(os.path.join("checkpoints", "snake.ckpt"))
+    checkpoint_path = os.path.abspath(os.path.join("checkpoints", "snake-deep-noloop.ckpt"))
     if not os.path.isdir(os.path.dirname(checkpoint_path)):
         os.makedirs(os.path.dirname(checkpoint_path))
 
@@ -39,14 +39,16 @@ def main():
     loaded = agent.load()
     extra_episodes = 0
     if loaded:
-        extra_episodes += 500
+        extra_episodes += 20000
 
-    for episode in range(500):
+    episode = 0
+    while True:
+        episode += 1
         episode_total_reward = 0
         observation = env.reset()
-        agent.epsilon = 1.0 / (0.1 * (extra_episodes + episode) + 2)
+        agent.epsilon = 1.0 / (0.01 * (extra_episodes + episode) + 2)
 
-        for i in range(500):
+        for i in range(1000):
             action, Q_base = agent.choose_action(observation)
             (new_observation, reward, done, info) = env.step(action)
 
@@ -64,12 +66,16 @@ def main():
 
         print("#" * 20)
         print("Episode: %s" % (episode + 1))
-        print("Episode reward: %.2f" % round(episode_total_reward, 2))
+        print("Episode reward: %d" % episode_total_reward)
         print("Steps elapsed: %s" % (i + 1))
-        print("Epsilon: %.2f" % round(agent.epsilon, 2))
+        print("Epsilon: %.4f" % round(agent.epsilon, 4))
 
-        if (episode + 1) % 50 == 0:
+        if (episode + 1) % 500 == 0:
             agent.save()
+
+        if episode_total_reward > 70 and episode + 1 >= 5000:
+            agent.save()
+            break
 
 
 if __name__ == "__main__":

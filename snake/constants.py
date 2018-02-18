@@ -1,4 +1,4 @@
-PLAY_AREA = (10, 10)
+PLAY_AREA = (8, 8)
 BLOCK_SIZE = 48
 
 

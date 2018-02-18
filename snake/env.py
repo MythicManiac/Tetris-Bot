@@ -28,13 +28,14 @@ class SnakeGameState(object):
     Cherry location 1-hot.
     """
 
-    def __init__(self, width, height, headless=False):
+    def __init__(self, width, height, headless=False, loop=False):
         if (height, width) != PLAY_AREA:
             raise ValueError("Only dimensions {} supported".format(PLAY_AREA))
         self.shape = (width, height, 4)
         self.width = width
         self.height = height
         self.headless = headless
+        self.loop = loop
         self.game_class = SnakeHeadlessGame if self.headless else SnakeGame
         self.game_kwargs = {}
         if not self.headless:
@@ -66,6 +67,7 @@ class SnakeGameState(object):
         raise KeyError("Cherry not found")
 
     def reset(self):
+        self.game_kwargs["random_seed"] = self.random.randint(99999)
         self.game = self.game_class(**self.game_kwargs)
         self.game._init_game()
 
@@ -83,9 +85,9 @@ class SnakeGameState(object):
         return 0
 
     def seed(self, seed=None):
-        self.random_seed = seed if seed else 1234
-        self.game_kwargs["random_seed"] = self.random_seed
-        return self.random_seed
+        seed = seed if seed else 1234
+        self.random = np.random.RandomState(seed)
+        return self.seed
 
     def render_ansi(self, outfile):
         features = self.encode()
@@ -114,11 +116,14 @@ class SnakeGameState(object):
             x, y = piece.position
             features[x][y][0] = piece.age + 1
         x, y = self.head.position
-        features[x][y][1] = 1
+        if x < self.width and x >= 0 and y < self.height and y >= 0:
+            features[x][y][1] = 1
         x, y = self.head.position + self.head.direction
-        x %= self.width
-        y %= self.height
-        features[x][y][2] = 1
+        if self.loop:
+            x %= self.width
+            y %= self.height
+        if x < self.width and x >= 0 and y < self.height and y >= 0:
+            features[x][y][2] = 1
         x, y = self.cherry.position
         features[x][y][3] = 1
 
