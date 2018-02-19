@@ -23,7 +23,7 @@ class Unbuffer(object):
 
 
 def main():
-    env = gym.make("Snake-v0")
+    env = gym.make("SnakeHeadless-v0")
 
     checkpoint_path = os.path.abspath(os.path.join("checkpoints", "snake-deep-noloop.ckpt"))
     if not os.path.isdir(os.path.dirname(checkpoint_path)):
@@ -39,14 +39,16 @@ def main():
     loaded = agent.load()
     extra_episodes = 0
     if loaded:
-        extra_episodes += 20000
+        extra_episodes += 32000
 
     episode = 0
+    total_steps = 0
     while True:
         episode += 1
         episode_total_reward = 0
         observation = env.reset()
-        agent.epsilon = 1.0 / (0.01 * (extra_episodes + episode) + 2)
+        epsilon = 1.0 / (0.01 * (extra_episodes + (total_steps / 1000)))
+        agent.epsilon = epsilon
 
         for i in range(1000):
             action, Q_base = agent.choose_action(observation)
@@ -61,13 +63,15 @@ def main():
             )
             observation = new_observation
             episode_total_reward += reward
+            total_steps += 1
             if done:
                 break
 
         print("#" * 20)
         print("Episode: %s" % (episode + 1))
         print("Episode reward: %d" % episode_total_reward)
-        print("Steps elapsed: %s" % (i + 1))
+        print("Episode steps: %s" % (i + 1))
+        print("Total steps: %s" % total_steps)
         print("Epsilon: %.4f" % round(agent.epsilon, 4))
 
         if (episode + 1) % 500 == 0:

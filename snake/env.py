@@ -191,14 +191,14 @@ def register():
     gym.envs.register(
         id=ENV_NAMES["normal"],
         entry_point="snake.env:SnakeEnv",
-        kwargs={"width": 10, "height": 10},
+        kwargs={"width": 8, "height": 8},
         max_episode_steps=None,
         reward_threshold=25.0,
     )
     gym.envs.register(
         id=ENV_NAMES["normal-headless"],
         entry_point="snake.env:SnakeEnv",
-        kwargs={"width": 10, "height": 10, "headless": True},
+        kwargs={"width": 8, "height": 8, "headless": True},
         max_episode_steps=None,
         reward_threshold=25.0,
     )
