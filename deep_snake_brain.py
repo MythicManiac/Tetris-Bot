@@ -2,14 +2,6 @@ import numpy as np
 import tensorflow as tf
 
 
-def _weight(shape, name):
-    return tf.Variable(tf.random_normal(shape, stddev=0.35), name=name)
-
-
-def _bias(shape, name):
-    return tf.Variable(tf.zeros(shape), name=name)
-
-
 def _weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
